@@ -1,1 +1,1 @@
-gulo v1.0
+gulo v1.0.0
