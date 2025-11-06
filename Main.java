@@ -15,14 +15,14 @@ class Main {
     
     // timer
     private static Timer t = null;
-    private static int tick = 10; // will only be updated once setTimer is called again
-    private static float speed = 1.0f;
+    private static float speed;
     private static CheckboxMenuItem lastSpeedChecked = null;
     private static float x, y = 0.0f;
     private static float dirx, diry = 1.0f;
     
     public static void main(String[] args) {
         props = new Props();
+        speed = props.getFloat("default_speed");
         
         f = new JWindow() {
             public void paint(Graphics g) {
@@ -35,7 +35,7 @@ class Main {
         f.setBackground(new Color(255, 255, 255, 0));
         f.setAlwaysOnTop(true);
         ((JComponent) f.getContentPane()).setDoubleBuffered(true);
-        load(props.get("default"));
+        load(props.get("default_gulo"));
         
         PopupMenu menu = new PopupMenu();
         icon = new TrayIcon(image.getScaledInstance(16, 16, Image.SCALE_FAST), "gulo");
@@ -53,7 +53,7 @@ class Main {
         for (float s : new float[] {0.1f, 0.25f, 0.5f, 0.75f, 1.0f, 1.5f, 2.0f, 5.0f, 10.0f, 50.0f}) {
             CheckboxMenuItem item = new CheckboxMenuItem(Float.toString(s));
             
-            if (s == 1.0f) { // 1.0 is selected by default
+            if (s == speed) { // 1.0 is selected by default
                 item.setState(true);
                 lastSpeedChecked = item;
             }
@@ -62,6 +62,9 @@ class Main {
                 public void itemStateChanged(ItemEvent e) {
                     lastSpeedChecked.setState(false);
                     speed = s;
+                    if (props.getInt("remember_speed") != 0) {
+                        props.setAndSave("default_speed", Float.toString(speed));
+                    }
                     lastSpeedChecked = item;
                 }
             });
@@ -84,6 +87,9 @@ class Main {
                 item.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         load(name);
+                        if (props.getInt("remember_gulo") != 0) {
+                            props.setAndSave("default_gulo", name);
+                        }
                     }
                 });
                 menu.insert(item, 0);
